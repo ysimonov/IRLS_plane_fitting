@@ -1,0 +1,4 @@
+#ifndef IRLS_PLANE_FITTING_HPP_
+#define IRLS_PLANE_FITTING_HPP_
+
+#endif /* IRLS_PLANE_FITTING_HPP_ */
