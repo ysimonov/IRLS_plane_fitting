@@ -46,7 +46,7 @@ class PlaneFittingIRLS
         return points_;
     }
 
-    void fitPlane(size_t max_iterations = 1);
+    void fitPlane(size_t max_iterations = 100, float k_welsh = 2.985f, float conv_thresh = 1e-6);
 };
 
 #endif /* IRLS_PLANE_FITTING_HPP_ */

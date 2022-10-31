@@ -26,7 +26,7 @@ PlaneFittingIRLS &PlaneFittingIRLS::operator=(PlaneFittingIRLS &&rhs) noexcept
     return *this;
 }
 
-void PlaneFittingIRLS::fitPlane(size_t max_iterations)
+void PlaneFittingIRLS::fitPlane(size_t max_iterations, float k_welsh, float conv_thresh)
 {
     // get points
     Eigen::MatrixX3f points_xyz = this->getPoints();
@@ -36,6 +36,13 @@ void PlaneFittingIRLS::fitPlane(size_t max_iterations)
 
     // compute centroid vector
     Eigen::RowVector3f centroid = points_xyz.colwise().mean();
+
+    // copy values
+    Eigen::RowVector3f centroid_prev;
+    centroid_prev = centroid;
+
+    Eigen::RowVector3f centroid_curr;
+    centroid_curr = centroid;
 
     std::cout << "Centroid: " << std::endl << centroid << std::endl;
 
@@ -69,8 +76,51 @@ void PlaneFittingIRLS::fitPlane(size_t max_iterations)
         std::cout << "Centered Points: " << std::endl << points_xyz_centered << std::endl;
 
         // calculate distances to the plane (dot product between points and normal vector)
-        Eigen::MatrixXf distances = points_xyz_centered * normal_vector;
+        Eigen::VectorXf distances = points_xyz_centered * normal_vector;
 
         std::cout << "Distances: " << std::endl << distances << std::endl;
+
+        // calculate Welsh function
+        Eigen::RowVectorXf weights = Eigen::exp(-(distances.array() / k_welsh).pow(2.0));
+
+        std::cout << "Weights: " << std::endl << weights << std::endl;
+
+        // recalculate centroid
+        centroid_curr = weights * (points_xyz_centered.rowwise() - centroid_prev) / weights.sum();
+
+        Eigen::MatrixX3f shifted_xyz = points_xyz_centered.rowwise() - centroid_curr;
+
+        std::cout << "shifted_xyz: " << std::endl << shifted_xyz << std::endl;
+
+        // 1xN * Nx3
+        std::cout << "Size of weights: " << weights.rows() << "x" << weights.cols() << std::endl;
+        std::cout << "Size of shifted_xyz: " << shifted_xyz.rows() << "x" << shifted_xyz.cols() << std::endl;
+
+        Eigen::Matrix3Xf temp = shifted_xyz.transpose().array().rowwise() * weights.array();
+        std::cout << "Size of temp: " << temp.rows() << "x" << temp.cols() << std::endl;
+
+        // covariance matrix
+        covariance_matrix = temp * shifted_xyz;
+        std::cout << "Covariance Matrix (Updated): " << std::endl << covariance_matrix << std::endl;
+
+        // recalculate eigenvalues and eigenvectors
+        eigensolver.compute(covariance_matrix);
+        Eigen::RowVector3f eigenvalues = eigensolver.eigenvalues().transpose();
+        Eigen::Matrix3f eigenvectors = eigensolver.eigenvectors();
+
+        std::cout << "Eigenvalues: " << std::endl << eigenvalues << std::endl;
+        std::cout << "Eigenvectors: " << std::endl << eigenvectors << std::endl;
+
+        // check convergence criteria
+        normal_vector = eigenvectors(Eigen::all, 0);
+        float convg =
+            ((old_normal_vector - normal_vector).array().abs() / (old_normal_vector.array().abs())).maxCoeff();
+
+        std::cout << "convg: " << convg << std::endl;
+        if (convg < conv_thresh)
+        {
+            std::cout << "Converged at " << iter << " iteration" << std::endl;
+            break;
+        }
     }
 }
