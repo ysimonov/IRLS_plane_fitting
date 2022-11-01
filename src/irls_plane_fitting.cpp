@@ -51,7 +51,11 @@ void PlaneFittingIRLS::fitPlane(size_t max_iterations, float k_welsh, float conv
 
     // the principal component (first eigenvector) corresponds to a rotation matrix (direction of the normal vector)
     Eigen::Vector3f normal_curr = eigenvectors(Eigen::all, 0); // 3 x 1
-    Eigen::Vector3f normal_prev = Eigen::Vector3f::Zero();     // 3 x 1
+
+    // normalize normal vector
+    normal_curr.normalize(); // 3 x 1
+
+    Eigen::Vector3f normal_prev = Eigen::Vector3f::Zero(); // 3 x 1
 
     // get additional centered values
     Eigen::RowVector3f xk_curr, xk_prev;
@@ -77,7 +81,7 @@ void PlaneFittingIRLS::fitPlane(size_t max_iterations, float k_welsh, float conv
         Eigen::MatrixX3f temp = points_xyz_centered.rowwise() - xk_curr; // N x 3
         Eigen::Matrix3Xf temp_transposed = temp.transpose();             // 3 x N
 
-        covariance_matrix = Eigen::Matrix3f::Zero();
+        covariance_matrix = Eigen::Matrix3f::Zero(); // 3 x 3
         for (size_t i = 0; i < number_of_points; ++i)
         {
             covariance_matrix += weights(i) * temp_transposed(Eigen::all, i) * temp(i, Eigen::all);
@@ -85,11 +89,15 @@ void PlaneFittingIRLS::fitPlane(size_t max_iterations, float k_welsh, float conv
 
         // recalculate eigenvalues and eigenvectors
         eigensolver.compute(covariance_matrix);
-        eigenvalues = eigensolver.eigenvalues();
-        eigenvectors = eigensolver.eigenvectors();
+        eigenvalues = eigensolver.eigenvalues();   // 3 x 1
+        eigenvectors = eigensolver.eigenvectors(); // 3 x 3
 
         // check convergence criteria
-        normal_curr = eigenvectors(Eigen::all, 0);
+        normal_curr = eigenvectors(Eigen::all, 0); // 3 x 1
+
+        // normalize normal vector
+        normal_curr.normalize(); // 3 x 1
+
         float convg = ((normal_prev - normal_curr).array().abs() / (normal_prev.array().abs())).maxCoeff();
 
         std::cout << iter << ") Normal Vector: " << normal_curr.transpose() << " | Convg: " << convg << std::endl;
