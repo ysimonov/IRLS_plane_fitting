@@ -8,3 +8,6 @@ The main idea behind this project is to have a robust plane fitting algorithm th
 Build and run `./irls_plane_fitting`
 
 ### Example Results
+![image1](https://github.com/ysimonov/IRLS_plane_fitting/blob/main/example/result_1.png)
+![image2](https://github.com/ysimonov/IRLS_plane_fitting/blob/main/example/result_2.png)
+![image3](https://github.com/ysimonov/IRLS_plane_fitting/blob/main/example/result_3.png)
