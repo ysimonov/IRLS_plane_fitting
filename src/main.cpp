@@ -13,7 +13,7 @@ struct Point
     float z;
 };
 
-int main(int argc, char *argv[])
+int main()
 {
 
     // read data
@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
     }
 
     // convert to Eigen
-    int number_of_lines = static_cast<int>(points.size());
+    size_t number_of_lines = points.size();
     Eigen::MatrixXf points_xyz(number_of_lines, 3);
     for (size_t i = 0; i < number_of_lines; ++i)
     {

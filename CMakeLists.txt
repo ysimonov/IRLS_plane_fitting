@@ -3,13 +3,11 @@ project(irls_plane_fitting)
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
-  set(CMAKE_C_STANDARD 99)
+  set(CMAKE_C_STANDARD 11)
 endif()
 
-# Default to C++14
-if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 14)
-endif()
+# Default to C++17
+set(CMAKE_CXX_STANDARD 17)
 
 # Compile options
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -31,21 +29,22 @@ file(GLOB SOURCES
 
 # Eigen
 find_package(Eigen3 3.4 REQUIRED NO_MODULE)
+link_directories(${Eigen_INCLUDE_DIRS})
 
-# VTK
-find_package(VTK 9.2 REQUIRED)
+# # VTK
+# find_package(VTK 9.2 REQUIRED)
 
-# PCL
-find_package(PCL 1.7.2 REQUIRED)
-include_directories(${PCL_INCLUDE_DIRS})
-link_directories(${PCL_LIBRARY_DIRS})
-add_definitions(${PCL_DEFINITIONS})
+# # PCL
+# find_package(PCL 1.7.2 REQUIRED)
+# include_directories(${PCL_INCLUDE_DIRS})
+# link_directories(${PCL_LIBRARY_DIRS})
+# add_definitions(${PCL_DEFINITIONS})
 
 # executable and build
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 # linking
-target_link_libraries(${PROJECT_NAME} Eigen3::Eigen)
-target_link_libraries(${PROJECT_NAME} ${VTK_LIBRARIES})
-target_link_libraries(${PROJECT_NAME} ${PCL_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${Eigen_LIBRARIES})
+# target_link_libraries(${PROJECT_NAME} ${VTK_LIBRARIES})
+# target_link_libraries(${PROJECT_NAME} ${PCL_LIBRARIES})
 

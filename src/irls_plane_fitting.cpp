@@ -53,13 +53,13 @@ void PlaneFittingIRLS::fitPlane(size_t max_iterations, float k_welsh, float conv
     Eigen::Vector3f normal_curr = eigenvectors(Eigen::all, 0); // 3 x 1
 
     // normalize normal vector
-    normal_curr.normalize(); // 3 x 1
-
-    Eigen::Vector3f normal_prev = Eigen::Vector3f::Zero(); // 3 x 1
+    normal_curr.normalize();                   // 3 x 1
+    Eigen::Vector3f normal_prev = normal_curr; // 3 x 1
 
     // get additional centered values
     Eigen::RowVector3f xk_curr, xk_prev;
     xk_prev = points_xyz_centered;
+    xk_curr = xk_prev;
 
     // iterative reweighted least squares
     for (size_t iter = 0; iter < max_iterations; ++iter)
@@ -71,7 +71,7 @@ void PlaneFittingIRLS::fitPlane(size_t max_iterations, float k_welsh, float conv
         Eigen::VectorXf distances = points_xyz_centered * normal_curr; // N x 1
 
         // calculate Welsh function
-        Eigen::RowVectorXf weights = Eigen::exp(-(distances.array() / k_welsh).pow(2.0f)); // N x 1
+        Eigen::VectorXf weights = Eigen::exp(-(distances.array() / k_welsh).pow(2.0f)); // N x 1
 
         // calculate xk_curr
         xk_curr = weights.transpose() * (points_xyz_centered.rowwise() - xk_prev) / weights.sum();
@@ -84,7 +84,8 @@ void PlaneFittingIRLS::fitPlane(size_t max_iterations, float k_welsh, float conv
         covariance_matrix = Eigen::Matrix3f::Zero(); // 3 x 3
         for (size_t i = 0; i < number_of_points; ++i)
         {
-            covariance_matrix += weights(i) * temp_transposed(Eigen::all, i) * temp(i, Eigen::all);
+            // removed weight
+            covariance_matrix += temp_transposed(Eigen::all, i) * temp(i, Eigen::all);
         }
 
         // recalculate eigenvalues and eigenvectors

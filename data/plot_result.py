@@ -14,7 +14,7 @@ with open(os.path.join(current_directory, 'dataset.txt'), mode='r', encoding='ut
             points_xyz[line_no, number_no] = number.split('\n')[0]
 
 centroid = points_xyz.mean(axis=0)
-normal = np.array([0.330753, 0.543153, 0.771743], dtype=np.float64)
+normal = np.array([0.313143, 0.538173, 0.782503], dtype=np.float64)
 
 x_mean = round(centroid[0])
 y_mean = round(centroid[1])

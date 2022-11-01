@@ -1,8 +1,8 @@
 #ifndef IRLS_PLANE_FITTING_HPP_
 #define IRLS_PLANE_FITTING_HPP_
 
+#include "eigen3/Eigen/Dense"
 #include <chrono>
-#include <eigen3/Eigen/Dense>
 #include <iostream>
 #include <memory>
 #include <utility>
@@ -46,7 +46,7 @@ class PlaneFittingIRLS
         return points_;
     }
 
-    void fitPlane(size_t max_iterations = 100, float k_welsh = 2.985f, float conv_thresh = 5e-4);
+    void fitPlane(size_t max_iterations = 100, float k_welsh = 1.2f, float conv_thresh = 5e-4);
 };
 
 #endif /* IRLS_PLANE_FITTING_HPP_ */
